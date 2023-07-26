@@ -2,12 +2,8 @@
     "version":2,
     "name":"whatsappclone",
     "builds":[
-        {"src":"app.js","use":"@vercel/node"}
+        {"src":"./app.js","use":"@vercel/node"}
     ],"routes":[
-        {"src":"/(.*)","dest":"app.js"}
-    ],"functions": {
-        "/(.*)": {
-          "maxDuration": 30000
-        }
-      }
+        {"src":"/(.*)","dest":"/"}
+    ]
 }
