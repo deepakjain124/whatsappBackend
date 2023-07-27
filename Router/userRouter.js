@@ -1,5 +1,5 @@
 const express = require('express');
-const { userLogin, userRegister, userLogOut, updateUser, getUserDetail, getAllUser } = require('../Controller/User');
+const { userLogin, userRegister, updateUser, getUserDetail, getAllUser } = require('../Controller/User');
 const router = express.Router();
 const multer=require("multer")
 const path = require("path");
@@ -32,9 +32,7 @@ const storage = multer.diskStorage({
 router.post('/login', (req, res) => {
     userLogin(req, res);
 });
-router.post('/logout', (req, res) => {
-  userLogOut(req, res);
-});
+
 router.post('/register',upload.single("userImage"), (req, res) => {
     userRegister(req, res);
 });
