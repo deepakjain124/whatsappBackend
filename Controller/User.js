@@ -12,7 +12,7 @@ const userLogin = async (req, res) => {
   try {
     const { userMobile, password } = req.body;
     if (!userMobile && !password) {
-      return res.status(404), send({ message: "All Fields are Required" });
+      return res.status(404).send({ message: "All Fields are Required" });
     }
     const findUSer = await user.findOne({ userMobile: userMobile });
     if (!findUSer)
@@ -28,7 +28,7 @@ const userLogin = async (req, res) => {
       Password: findUSer.password,
       userImage: findUSer.userImage,
     };
-    res.status(200).json({
+    res.status(200).send({
       statusCode: 200,
       status: true,
       message: "User SuccessFully Logged In",
