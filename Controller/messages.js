@@ -1,3 +1,4 @@
+const user = require("../Models/User");
 const message = require("../Models/messageSchema");
 
 const sendMessage = async (req, res) => {
@@ -41,35 +42,77 @@ const getmessage = async (req, res) => {
     console.log(error);
   }
 };
-const getPersonalMessages=async(req,res)=>{
-  console.log("kklklkl")
-const {sender}=req.body;
-try {
-  const messages = await message.aggregate([
-    {
-      $match: {
-        sender: sender,
-      },
-    },
-    {
-      $group: {
-        _id: "$receiverId",
-        senderBObjects: {
-          $push: 
-            "$$ROOT"
-          ,
+const getPersonalMessages = async (req, res) => {
+  const { sender } = req.body;
+  try {
+    const messages = await message.aggregate([
+      {
+        $match: {
+          $or: [
+            { sender: sender }, // Replace 'b' with the dynamic sender value
+            { receiverId: sender }, // Replace 'b' with the dynamic sender value
+          ],
         },
       },
-    },
-  ]);
+      {
+        $group: {
+          _id: {
+            $cond: {
+              if: { $eq: ["$sender", sender] }, // Replace 'b' with the dynamic sender value
+              then: "$receiverId",
+              else: "$sender",
+            },
+          },
+          messages: { $push: "$text" },
+          createdAt:{ $push: "$createdAt" }
+        },
+      },
+      {
+        $project: {
+          messages: { $last: "$messages" },
+          createdAt:{$last:"$createdAt"}
+        },
+      },
+    ]);
+    const data = await user.find().exec();
+    function addImageField(messagesArray, usersArray) {
+      const result = messagesArray.map((message) => {
+        const user = usersArray.find(
+          (user) => user._id.toString() === message._id
+        );
+        return {
+          ...message,
+          userImage: user ? user.userImage : null,
+          receiverName: user ? user.userName : null,
+        };
+      });
+      return result.sort((a,b)=>{
+        if(a.createdAt<b.createdAt){
+          return 1
+        }
+        return -1
+      });
+    }
+    const finalResponse = addImageField(messages, data);
+    res.status(200).json({
+      data: finalResponse,
+      message: "Message fetched successfully!",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+module.exports = { sendMessage, getmessage, getPersonalMessages };
 
-  res.status(200).json({
-    data: messages,
-    message: "Message fetched successfully!"
-  });
-} catch (error) {
-  console.error(error);
-  res.status(500).json({ message: "Internal server error" });
-}
-}
-module.exports = { sendMessage, getmessage,getPersonalMessages };
+// const msg=[
+//   {receiver:a,sender:b,text:hiii},
+//   {receiver:b,sender:a,text:bolloooo},
+//   {receiver:c,sender:b,text:hello},
+//   {receiver:b,sender:c,text:bolo},
+
+// ]
+// const output=[
+//   {id:a,messages:[hii,bolloooo]},
+//   {id:c,messages:[hello,bolo]}
+// ]

@@ -53,7 +53,6 @@ const userRegister = async (req, res) => {
       return res.status(404), send({ message: "All Fields are Required" });
     }
     const findUSer = await user.findOne({
-      userName: userName,
       userMobile: userMobile,
     });
     if (findUSer)
