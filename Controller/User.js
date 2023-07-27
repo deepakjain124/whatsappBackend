@@ -127,6 +127,7 @@ const getUserDetail = async (req, res) => {
 const getAllUser=async(req,res)=>{
   try {
     const tokenCookie = req.cookies.user_access_token;
+    console.log(tokenCookie,"tokencookie")
   const decoded = verifyJwtToken(tokenCookie);
   const { userMobile } = decoded;
     const getuser=await user.find({userMobile:{$ne:userMobile}},{password:0})
