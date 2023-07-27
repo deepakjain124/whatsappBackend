@@ -127,6 +127,7 @@ const getAllUser =
   async (req, res) => {
     try {
       const decoded = verifyJwtToken(req.headers["authorization"]);
+      console.log(decoded)
       const { userMobile } = decoded;
       const getuser = await user.find(
         { userMobile: { $ne: userMobile } },

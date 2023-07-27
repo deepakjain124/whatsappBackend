@@ -32,7 +32,7 @@ function authenticateToken(req, res, next) {
   jwt.verify(token, "test", (err, user) => {
     if (err) return res.sendStatus(403)
     req.user = user
-    next()
+    // next()
   })
 }
 module.exports = {
