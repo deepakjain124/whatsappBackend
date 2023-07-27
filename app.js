@@ -28,15 +28,11 @@ const corsOptions = {
 };
 app.use(
   cors({
-    origin: "http://localhost:3001",
+    origin: "https://latestwhatsapp.netlify.app",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   })
 );
-app.options("*",cors({
-  origin: "http://localhost:3001",
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-}))
+
 app.use("/api/v1/user", userRoutes);
 
 const server = app.listen(port, () => {
