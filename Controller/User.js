@@ -30,7 +30,7 @@ const userLogin = async (req, res) => {
     res
       .cookie("user_access_token", jwtToken, {
         httpOnly: true,
-        domain: '.localhost',
+        domain: process.env.ORIGIN,
         secure: false,
         sameSite: false,
         path: "/",

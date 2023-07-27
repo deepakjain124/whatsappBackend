@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const dotenv = require('dotenv');
+dotenv.config();
 
 const mongoConnect = require("./Config/db");
 const userRoutes = require("./Router/userRouter");
