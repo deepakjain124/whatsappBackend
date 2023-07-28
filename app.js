@@ -4,7 +4,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const dotenv = require('dotenv');
 dotenv.config();
-
+const fileUpload=require("express-fileupload")
 const mongoConnect = require("./Config/db");
 const userRoutes = require("./Router/userRouter");
 const path = require("path");
@@ -26,6 +26,9 @@ const corsOptions = {
   },
   credentials: true,
 };
+app.use(fileUpload({
+  useTempFiles:true
+}))
 app.use(
   cors({
     origin: "https://latestwhatsapp.netlify.app",

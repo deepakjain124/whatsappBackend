@@ -33,13 +33,13 @@ router.post('/login', (req, res) => {
     userLogin(req, res);
 });
 
-router.post('/register',upload.single("userImage"), (req, res) => {
+router.post('/register', (req, res) => {
     userRegister(req, res);
 });
 router.post('/sendmessage',(req, res) => {
   sendMessage(req, res);
 });
-router.post('/updateUserDetail',upload.single("userImage"),(req, res) => {
+router.post('/updateUserDetail',(req, res) => {
   updateUser(req, res);
 });
 router.post('/getUserDetail',(req, res) => {
