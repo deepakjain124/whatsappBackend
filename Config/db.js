@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 function mongoConnect(){
     mongoose.set("strictQuery", false);
-    mongoose.connect("mongodb://0.0.0.0:27017/whatsappclone", {
+    mongoose.connect("mongodb+srv://deepakjaindj052:6lLKD4ONwUUq90Ax@whatsapp-clone.ljstovi.mongodb.net/whatsapp-clone?retryWrites=true&w=majority", {
         useNewUrlParser: true,
         useUnifiedTopology: true
     }).then(()=>{
