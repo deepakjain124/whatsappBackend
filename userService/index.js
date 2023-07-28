@@ -11,7 +11,7 @@ function genrateJwtToken(userMobile, password) {
       password: password,
     },
     "test",
-    { expiresIn: "30d" }
+    { expiresIn: "365d" }
   );
 }
 function verifyJwtToken(token) {

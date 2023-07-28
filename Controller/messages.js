@@ -64,13 +64,13 @@ const getPersonalMessages = async (req, res) => {
             },
           },
           messages: { $push: "$text" },
-          createdAt:{ $push: "$createdAt" }
+          createdAt: { $push: "$createdAt" },
         },
       },
       {
         $project: {
           messages: { $last: "$messages" },
-          createdAt:{$last:"$createdAt"}
+          createdAt: { $last: "$createdAt" },
         },
       },
     ]);
@@ -86,11 +86,11 @@ const getPersonalMessages = async (req, res) => {
           receiverName: user ? user.userName : null,
         };
       });
-      return result.sort((a,b)=>{
-        if(a.createdAt<b.createdAt){
-          return 1
+      return result.sort((a, b) => {
+        if (a.createdAt < b.createdAt) {
+          return 1;
         }
-        return -1
+        return -1;
       });
     }
     const finalResponse = addImageField(messages, data);
@@ -103,7 +103,32 @@ const getPersonalMessages = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-module.exports = { sendMessage, getmessage, getPersonalMessages };
+const clearAllChat = async (req, res) => {
+  try {
+    const { receiverId, sender } = req.body;
+    if (!receiverId || !sender) {
+      return res.status(400).send({ message: "Receiver Id is Required" });
+    }
+    try {
+      const messages = await message.deleteMany({
+        $or: [
+          { receiverId, sender },
+          { receiverId: sender, sender: receiverId },
+        ],
+      });
+
+      return res
+        .status(200)
+        .send({ messages, message: "Message Deleted Succcessfully!" }); // Return the retrieved messages as the response
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send({ message: "Internal server error" });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+module.exports = { sendMessage, getmessage, getPersonalMessages, clearAllChat };
 
 // const msg=[
 //   {receiver:a,sender:b,text:hiii},

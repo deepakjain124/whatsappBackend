@@ -25,7 +25,7 @@ const userLogin = async (req, res) => {
       id: findUSer._id,
       userName: findUSer.userName,
       userMobile: findUSer.userMobile,
-      Password: findUSer.password,
+      blockList: findUSer.blockList,
       userImage: findUSer.userImage,
     };
     res.status(200).send({
@@ -100,9 +100,10 @@ const updateUser =
 const getUserDetail =
   (authenticateToken,
   async (req, res) => {
-    const decoded = verifyJwtToken(req.headers["authorization"]);
-    const { userMobile } = decoded;
-    const findUser = await user.findOne({ userMobile });
+    const { id } = req.body;
+    // const decoded = verifyJwtToken(req.headers["authorization"]);
+    // const { userMobile } = decoded;
+    const findUser = await user.findOne({ _id: id });
     if (findUser) {
       let response = {
         id: findUser._id,
@@ -127,7 +128,6 @@ const getAllUser =
   async (req, res) => {
     try {
       const decoded = verifyJwtToken(req.headers["authorization"]);
-      console.log(decoded)
       const { userMobile } = decoded;
       const getuser = await user.find(
         { userMobile: { $ne: userMobile } },
@@ -144,6 +144,68 @@ const getAllUser =
       console.log(error);
     }
   });
+const BlockUser = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const decoded = verifyJwtToken(req.headers["authorization"]);
+    const { userMobile } = decoded;
+    const currentUser = await user.findOne({ userMobile });
+    const blockedUser = await user.findOne({ _id: userId });
+    if (!blockedUser) {
+      return res.status(404).send({ message: "Blocked user not found!" });
+    }
+    const update = { $addToSet: { blockList: userId } };
+    const options = { new: true };
+    const result = await user.findOneAndUpdate(
+      { _id: currentUser._id },
+      update,options
+    );
+    let { _id, userName, userImage, status, blockList } = result;
+    let response = { id:_id, userName, status, userImage, blockList };
+    if (result) {
+      return res.status(200).send({
+        data: response,
+        message: `${blockedUser.userName} Blocked Successfully!`,
+      });
+    } else {
+      return res.status(500).send({ message: "Failed to block user!" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ message: "Internal server error" });
+  }
+};
+const unBlockUser = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const decoded = verifyJwtToken(req.headers["authorization"]);
+    const { userMobile } = decoded;
+    const currentUser = await user.findOne({ userMobile });
+    const blockedUser = await user.findOne({ _id: userId });
+    if (!blockedUser) {
+      return res.status(404).send({ message: "Blocked user not found!" });
+    }
+    const update = { $pull: { blockList: userId } };
+    const options = { new: true };
+    const result = await user.findOneAndUpdate(
+      { _id: currentUser._id },
+      update,options
+    );
+    let { _id, userName, userImage, status, blockList } = result;
+    let response = { id:_id, userName, status, userImage, blockList };
+    if (result) {
+      return res.status(200).send({
+        data: response,
+        message: `${blockedUser.userName} Unblocked Successfully!`,
+      });
+    } else {
+      return res.status(500).send({ message: "Failed to block user!" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ message: "Internal server error" });
+  }
+};
 
 module.exports = {
   userLogin,
@@ -151,4 +213,6 @@ module.exports = {
   getAllUser,
   userRegister,
   updateUser,
+  BlockUser,
+  unBlockUser
 };

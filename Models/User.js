@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema(
     status: { type: String, default: null },
     userMobile: { type: Number, default: null, required: true },
     password: { type: String, required: true, default: null },
+    blockList:{type:Array,required:false,default:null}
   },
   { timestamps: true }
 );
