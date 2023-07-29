@@ -34,7 +34,7 @@ app.use(
 app.use(
   cors({
     origin: "https://latestwhatsapp.netlify.app",
-    // origin:"http://localhost:3001",
+    // origin:"http://localhost:3000",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   })
 );

@@ -7,11 +7,11 @@ const {
   authenticateToken,
 } = require("../userService");
 const jwt = require("jsonwebtoken");
-const cloudinary=require("cloudinary").v2;
-cloudinary.config({ 
-  cloud_name: 'dknt9yjwp', 
-  api_key: '776796723951685', 
-  api_secret: '0voWP2qYykN8ogL7ciOhi9xuywk' 
+const cloudinary = require("cloudinary").v2;
+cloudinary.config({
+  cloud_name: "dknt9yjwp",
+  api_key: "776796723951685",
+  api_secret: "0voWP2qYykN8ogL7ciOhi9xuywk",
 });
 const userLogin = async (req, res) => {
   try {
@@ -44,11 +44,11 @@ const userLogin = async (req, res) => {
     console.log(error);
   }
 };
-          
+
 const userRegister = async (req, res) => {
   try {
-    const file=req.files.userImage
-    cloudinary.uploader.upload(file.tempFilePath,async(err,result)=>{
+    const file = req.files.userImage;
+    cloudinary.uploader.upload(file.tempFilePath, async (err, result) => {
       const { userName, password, userMobile } = req.body;
       if (!userName && !password && !userMobile) {
         return res.status(404), send({ message: "All Fields are Required" });
@@ -58,41 +58,51 @@ const userRegister = async (req, res) => {
       });
       if (findUSer)
         return res.status(400).send({ message: "User Already Exist" });
-        req.body.userImage = result.url;
+      req.body.userImage = result.url;
       const userdata = await new user(req.body);
       const registered = await userdata.save();
       res.status(201).send(req.body);
-    })
-
+    });
   } catch (error) {
     console.log(error);
   }
 };
 
-const updateUser =
-  (authenticateToken,
-  async (req, res) => {
-    console.log(req,"req")
-    try {
-
+const updateUser = async (req, res) => {
+  try {
     const { userName, status } = req.body;
     const decoded = verifyJwtToken(req.headers["authorization"]);
     const { userMobile } = decoded;
+
     let updateFields = {};
-    if(req.files?.userImage){
-      const file=req.files.userImage
-    cloudinary.uploader.upload(file.tempFilePath,async(err,result)=>{
-      console.log(result,"result")
-       updateFields.userImage =result.url;
-    })
-  }
-    if (userName) {
-      updateFields.userName = userName;
+    if (req.files?.userImage) {
+      const file = req.files.userImage;
+
+      // Upload the image to Cloudinary
+      cloudinary.uploader.upload(file.tempFilePath, async (err, result) => {
+        if (result) {
+          updateFields.userImage = result.url;
+          update(userMobile);
+        } else {
+          console.error(err);
+          res.status(500).json({ message: "Image upload failed" });
+        }
+      });
+    } else {
+      // If there is no image to upload, directly update the user
+      update(userMobile);
     }
-    if (status) {
-      updateFields.status = status;
-    }
-    console.log(updateFields,"jjj")
+
+    async function update(userMobile) {
+      if (userName) {
+        updateFields.userName = userName;
+      }
+
+      if (status) {
+        updateFields.status = status;
+      }
+
+      // Find the user by userMobile and update the fields
       const findByMobileNumber = await user.findOne({ userMobile });
 
       if (findByMobileNumber) {
@@ -106,11 +116,13 @@ const updateUser =
       } else {
         res.status(404).json({ message: "User not found" });
       }
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Internal Server Error" });
     }
-  });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 const getUserDetail =
   (authenticateToken,
   async (req, res) => {
@@ -172,10 +184,11 @@ const BlockUser = async (req, res) => {
     const options = { new: true };
     const result = await user.findOneAndUpdate(
       { _id: currentUser._id },
-      update,options
+      update,
+      options
     );
     let { _id, userName, userImage, status, blockList } = result;
-    let response = { id:_id, userName, status, userImage, blockList };
+    let response = { id: _id, userName, status, userImage, blockList };
     if (result) {
       return res.status(200).send({
         data: response,
@@ -203,10 +216,11 @@ const unBlockUser = async (req, res) => {
     const options = { new: true };
     const result = await user.findOneAndUpdate(
       { _id: currentUser._id },
-      update,options
+      update,
+      options
     );
     let { _id, userName, userImage, status, blockList } = result;
-    let response = { id:_id, userName, status, userImage, blockList };
+    let response = { id: _id, userName, status, userImage, blockList };
     if (result) {
       return res.status(200).send({
         data: response,
@@ -228,5 +242,5 @@ module.exports = {
   userRegister,
   updateUser,
   BlockUser,
-  unBlockUser
+  unBlockUser,
 };
